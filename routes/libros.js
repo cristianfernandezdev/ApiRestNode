@@ -12,6 +12,38 @@ router.get('/', async (req, res) => {
     }
 });
 
+
+router.get('/filtro/autores-baratos', async (req, res) => {
+    try {
+
+        let librosBaratos = await Libro.find({ precio: { $lt: 10 } });
+
+
+        let idsAutores = librosBaratos.map(libro => libro.autor);
+
+
+        let autores = await Autor.find({ _id: { $in: idsAutores } }).select('nombre');
+
+        res.status(200).send({ ok: true, resultado: autores });
+    } catch (error) {
+        res.status(500).send({ ok: false, error: "Error en la consulta de autores con libros baratos" });
+    }
+});
+
+
+router.get('/filtro/mas-baratos', async (req, res) => {
+    try {
+        let resultado = await Libro.find()
+            .sort({ precio: 1 })
+            .limit(3)
+            .select('titulo precio');
+
+        res.status(200).send({ ok: true, resultado: resultado });
+    } catch (error) {
+        res.status(500).send({ ok: false, error: "Error obteniendo los libros más baratos" });
+    }
+});
+
 const Autor = require('../models/autor');
 
 
